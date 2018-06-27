@@ -1,0 +1,167 @@
+相对路径，相对每一个位置来说的路径。 . 当前目录  .. 上一级目录
+
+路径分隔符  liunx,unix 是/    windows 是\   DIRECTORY_SEPARATOR
+PHP不管是在Linux还是windows都是支持  /   PHP和Apache配置文件中如果需要指定目录，也使用/作为目录符号 
+
+绝对路径，根路径（都可以找到的路径）。
+/ 代表根路径    
+如果是在服务器中执行路径，则’根‘指的是操作系统的根
+如果程序是下载的客户端，在访问服务器中的文件时，只有通过Apache/nginx访问时，’根‘也就是指的文档根目录
+
+rwx 表这个文件的拥有者  r读 w写 x执行    
+rwx 表这个文件的拥有者所在的组  r读 w写 x执行
+rwx 其它用户对这个为文件的权限  r读 w写 x执行
+
+r 4  
+w 2
+x 1
+
+		7 7 7  4+2+1  4+2+1 4+2+1
+			rwx   rwx  rwx
+		
+		644
+			4+2   4   4
+			rw_  r__ r__
+		754
+			
+		chmod u=rwx,g=rw,o=x
+		chmod 777  demo.php
+		chmod 644  demo.html
+
+		chown  mysql demo.php
+
+		chgrp  apache demo.php
+
+chgrp -- 改变文件所属的组
+chmod -- 改变文件模式
+chown -- 改变文件的所有者
+
+filegroup -- 取得文件的组
+fileowner -- 取得文件的所有者
+
+============================================================
+file_get_contents();
+file();
+readfile();
+
+fopen();
+fread();
+fgets();
+
+
+写入文件
+file_put_contents();
+fopen(); 
+
+
+rgb浅色范围 大概是225-255
+
+
+<!-- 使用accept html5属性 声明仅接受png gif jpeg格式的文件                -->
+<label id="for-file">画品</label><input type="file" accept="image/png,image/gif,image/jpeg" id="file" name="file">
+
+php 操作sql  一定注意哪些要加上引号，哪些不要  （需要设置的值要加）
+eg：//   表单提交的 更新数组
+    $update = array(
+        'name'=>$name,
+        'price'=>$price,
+        'des'=>$des,
+        'content'=>$content
+    );
+//  校验商品图片,当用户选择上传图片 才进行图片上传处理
+    if ($_FILES['file']['size']>0){
+        $pic=imgUpload($_FILES['file']);
+        $update['pic']= $pic;
+    }
+//    只更新被更改的信息  对比数据库数据 跟用户表单数据
+    foreach ($update as $k=>$v) {
+//    如果数据库中的数据与提交过来的某个数据相同就销毁该数据
+        if ($goods[$k]==$v){
+//            unset() 销毁指定的变量
+            unset($update[$k]);
+        }
+    }
+    //    更新sql 处理
+    $updateSql = '';
+    foreach ($update as $k=>$v){
+        $updateSql .=" {$k} = '{$v}' ,";
+    }
+//  去除最后右边的逗号  得到最终sql
+    $updateSql = trim($updateSql,',');
+//   对比2个数组 如果没有修改数据，经过上面验证后$update 为空了.就跳转
+    if (empty($update)){
+        msg('1','操作成功','edit.php?id='.$goodsId);
+    }
+//    更新sql 语句
+    $sql = "update im_goods set $updateSql WHERE id = '$goodsId'";
+
+
+增删改操作的时候，要验证有没有权限操作，这条数据存不存在
+删除操作 最好在where加上  limit 1  只操纵一条 
+orderby一定在 limit之前不能再后，会报错
+
+模糊查询技术
+sql 匹配模式，默认不区分大小写
+
+json_encode 失败可能是编码问题
+
+html 的浮动 向右浮动，则在最右边的元素 代码中应该写在上方 ，然后依次写。
+
+只有display：block属性元素 设置height才有效
+
+socket  封装了tcp/ip  协议。 建立长链接的基础
+http	应用层 header+body组成 比tcp更高级，短链接。引入了cookie来维持请求
+websocket  应用层协议，长链接，主流即时通讯协议
+
+cookie 保存在客户端 内存cookie（浏览器来维护，关闭就消失）和硬盘cookie（过了过期时间，或者手动删除）
+setcookie()  $name 指定cookie的名字 $value cookie的值。$expire 设置cookie的过期时间，默认值为0，单位是秒数。
+删除cookie 把时间设置过期 ，会话cookie设置time()-1 即可
+
+======================================Beanstalkd==============================================
+优先级 priority
+延迟	delay
+持久化	persistent data
+预留	buried
+任务超时重发	time-to-run
+===================Linux，windows下php扩展安装====================
+php 去pecl下载 扩展安装要对应上 phpinfo中看PHP Extension Build版本信息  Architecture是x64/x86  php版本 nts/ts版本
+解压到对应目录，php.ini 中开启扩展，配置扩展相关参数
+
+Linux  下安装php 扩展
+下载扩展文件
+要安装autoconf (出现配置信息错误)
+centos/redhat yum install autoconf		ubuntu apt-get install autoconf
+执行phpize   在解压扩展目录下执行 phpize （是用来扩展php扩展模块）
+配置编译参数
+eg: ./configure
+--with-php-config=/usr/local/php/bin/php-config
+./configure 后面可以指定的是php-config文件的路径
+编译安装
+make && make install
+开启扩展
+重启php-fpm
+======================http协议=============================
+无状态协议
+telnet 127.0.0.1 80   按ctrl+]  回车 打开回显功能
+--------------------------------------------------------------
+json字符集必须是unicode 适合数据量大，不要求保留原有数据类型的情况下使用。
+json一定要是双引号。对象转换为json数据时，只转换公有变量，私有变量和保护变量不转换
+关联数组：有明确的key（就是自己定义了key）		索引数组：没有明确的key
+//如果想把一个json字符串转换成一个数组，则json_decode（$aa,true） 这里第二个参数设置为true就行了
+//$jsonStr = '{"key":"value","key1":"value1"}';
+//$jsonStr = json_decode($jsonStr,true);
+//print_r($jsonStr);
+
+curl 客户端向服务器请求资源的工具
+curl_init() 初始化curl，接收执行curl_exec()   关闭curl_close() 
+
+redis 命令
+set key value 设置
+get kye	获取
+setex key 10 value	(10秒失效)设置过期时间
+del key   删除
+连接redis $redis->connect('127.0.0.1');  localhost不行，然后端口默认6379
+===============================================================================
+crontab -e  设置定时任务
+crontab -l   查看定时任务
+crontab -r 删除当前用户下面的定时任务

@@ -1,0 +1,439 @@
+laravel从git上拉取下来一个新的项目的时候，需要注意的
+
+1，第一步，composer install -vv
+(git checkout -b develop   创建新分支并切换到该分支下)
+2, 生成秘钥  php artisan key:generate
+3, composer update   再次更新下
+
+
+新建laravel项目（为5.5.*版本，项目文件夹当前目录下的larabbs）	composer create-project laravel/laravel larabbs --prefer-dist "5.5.*"
+
+
+路由 ：
+将用户请求转发给相应的程序（处理函数）进行处理。作用就是建立URL与程序（处理函数）之间的映射
+
+注意引号里面的空格，有空格也是不行的！！
+
+
+app 核心代码 业务逻辑写在Http文件夹 ，Http文件夹里面的Controllers文件夹（mvc中的c）
+
+public 项目资源文件夹 css js img。。。
+resource中的views（mvc中的v）
+
+模型在app目录下
+
+模板布局一般放在目录views的common（新建）目录里
+
+AppServiceProvider 是框架的核心，在 Laravel 启动时，会最先加载该文件。
+=============================================
+laravel 提供DB facade（原始查找），查询构造器和Eloquent ORM三种操作数据库方式
+
+DB facade
+
+=======================****************************=================================
+给予相应的777权限  （!-!-!-!所有文件777 权限）  很重要   lnmp安装的集成包 LNMP 1.4上也可以直接使用lnmp1.4/tools/ 目录下的 ./remove_open_basedir_restriction.sh 进行移除。.user.ini
+
+部署 laravel 项目到服务器要更新composer   新建一个新用户，给予这个用户root权限 
+到/etc/sudoers 找到Allows people in group wheel to run all commands   把注释解开就给予了新建用户权限。然后登录新建用户  su 用户名 （切换用户，exit退出到root用户）
+移动到项目目录（不是public目录） 输入composer update 进行更新 
+
+500错误，其他php测试文件，phpinfo.php没错  给权限
+
+在 php.ini中开 display_errors   来调错
+在.env   里面把APP_DEBUG  设置成ture  来调错
+==================================*********************===============
+
+laravel 中对密码的加密bcrypt（）；
+
+=====================================================
+安装debug 
+composer require "barryvdh/laravel-debugbar:~3.1" --dev
+生成配置文件，存放位置 config/debugbar.php：
+php artisan vendor:publish --provider="Barryvdh\Debugbar\ServiceProvider"
+打开 config/debugbar.php，将 enabled 的值设置为： 'enabled' => env('APP_DEBUG', false)。修改完以后, Debugbar 分析器的启动状态将由 .env文件中 APP_DEBUG 值决定。
+
+
+查询构造器  
+get（）first（） where（）查询数据 
+
+聚合函数  count（） max（） min（） avg（） sum（）
+
+
+
+
+
+Eloquent ORM
+
+
+
+
+
+php artisan route:cache来生成一个路由缓存文件
+
+Route::get()      //  对应http的get
+Route::post()     //  对应http的post
+Route::put()      //  对应http的put
+Route::patch()   //   对应http的patch
+Route::delete()  //   对应http的delete
+
+laravel强大的Artisan来自动生成这个控制器类
+
+//生成控制器(PagesController)
+php artisan make:controller PagesController
+
+//生成model(Member)
+php artisan make:model Member
+
+//创建指定版本号laravel项目
+composer create-project laravel/laravel blog "5.0.*" --prefer-dist 
+
+//php artisan 命令列表（输入php artisan可以看）
+==================================================
+
+
+
+Route::get('/','PageController@home');
+Route::get('about',function(){
+	return 'multy';
+});
+Route::get('use','['as'=> 'center','uses'=>PageCotroller@home]);
+
+Route::get(['prefix'=>'member],function(){
+	Route::get('user',['as'=>'center',function(){
+	return route('center');
+	});
+	
+	Route::any('multy',function(){
+	return 'multy';
+	});
+});
+
+Route::group(['middleware'=>['web']],function(){
+	Route::get('session','StudentController@session');
+	Route::get('session1',[
+		'as'=>'test',
+		'user'=>'StudentController@session1';
+	]);
+});
+
+====================
+public function session(Request $request){
+	Session::pull('student','deault');
+	Session::all();
+	Session::has('key1');
+	Session::forget('key1');
+	Session::flash('key4','value9');
+	Session::flush();
+	Session::get('key');
+	
+}
+
+public function response(){
+	$data=[
+	'jk'=>'a',
+	'jk'=>'a',
+	'ji'=>'aa'
+	];
+	return response()->json($data);
+	return redirect('session');
+	return redirect('session2')->with('message','快闪数据');
+	return redirect()->action('StudentController@session2)->with('message','快闪数据');
+	return redirect()->route('test')->with('message','jd');
+	return redirect()->back()->with('message','jd');
+	
+}
+==================================================
+路由设置put提交
+在表单加{{method_field('put')}}
+
+前缀相同的路由(都是posts)，组成路由组
+Route::group(['prefix'=>'posts'],function(){
+	Route::get();
+	Route::get();
+	Route::get();
+});
+
+=============================================================
+默认的post对应的表：posts 对应的主键是id   
+路由模型绑定   Route::put('/posts/{post}','PostController@update');
+把post模型绑定到路由上面，传递给具体的update方法来处理。
+function update（post $post）{
+	//....
+}
+
+php artisan make:migration create_posts_table 创建一个迁移表
+然后修改默认字符串长度，再php artisan migrate 进行迁移。
+
+
+<a her=首页 》《视频上传》》
+
+<header>     
+  
+
+include helar  .. html 
+===========================laravel路由=============================
+
+Route::get/post/put/patch/delete/options($uri,$callback); 一共有六个  支持http1.1方法
+获取  创建  更新  增量更新  删除  查询资源支持的方法
+Router::match(["get","post"],"$uri",$callback);		只支持get，post方式
+
+要让html的的表单(只支持get，post)支持put，首先要method="POST"表单提交，再加<input type="hidden" name="_method" value="PUT" />  laravel中提供了方法{{method_field("PUT")}}  是和上面等价的
+
+路由分组(下面例子为路由添加前缀posts)
+Router::group(['prefix'=>'posts'],function(){
+	Route::get('/',controller@方法名);
+	Route::get('/{id}',controller@方法名);
+	Route::get('/create',controller@方法名);
+);
+
+数据库迁移
+php artisan make:migration create_posts_table  --create="指定表" 这样就创建migration 
+在up方法里面写数据库表需要的字段，及down方法中回滚操作
+执行命令   php artisan migrate
+报错767字符相关错时，解决方法app/providers/AppServiceProvider.php中boot方法中添加Schema::defaultStringLength(191);再引入命名空间 即可。
+
+laravel使用ORM来做模型，使用一个类来表示一个表  php artisan make:model Post 这里默认是post是表 复数形式来命名的
+
+php artisan tinker 
+
+时间格式	http://carbon.nesbot.com/docs/
+
+数据填充	https://github.com/fzaninotto/Faker		
+打开database/factories/UserFactory.php   如下eg:
+//对Post进行数据填充
+$factory->define(\App\Post::class,function (Faker $faker){
+    //return 一个数组过去
+    return [
+        //sentence 句子  paragraph 段落 可以去github上看
+        'title' => $faker->sentence(6),
+        'content'=>$faker->paragraph(10),
+    ];
+});
+然后用tinker  命令：factory(App\Post::class,10)->create();  这里的post是模型，10是创建10个，然后create()生成数据。此时数据库就有了数据
+字符截断(限制字串的字符数量。)  str_limit($data,保留多少字符，剩下的以什么来显示);
+eg:str_limit($post->content,100,'.....')
+
+传递过来的参数名和数据库名能保持一致的话，会很方便
+
+从request获取数据并存入数据库可以使用如下2个策略都行   
+//  1.        效果与下面$params 是一样的 得到request的值，并通过Post::create()方法存入数据库
+//        $params = ['title'=> \request('title'),'content'=>\request('content')];
+//        $params = \request(['title','content']);
+//        Post::create($params);
+
+2.
+        Post::create(\request(['title','content']));
+这里要把多个值存入模型（数据库表）就要设置$fillable 或者$guarded 。为了方便可以新建一个Model基类(下面名字叫BaseModel，可自拟)  eg：
+<?php
+namespace App;
+//as 意思是外号 这里是把命名空间改了
+use Illuminate\Database\Eloquent\Model as BaseModel;
+//让Model继承这个BaseModel
+class Model extends BaseModel
+{
+	public $guarded=[];
+}
+
+然后所有创建的类就继承这个BaseModel，如下写法（只要把使用命名空间改成自己新建的model基类即可）eg：
+<?php
+
+namespace App;
+//这个命名空间表示使用的是BaseModel这个自己新建的model，因为BaseModel里面写了public $guarded=[]; 所以所有继承的都不要写了
+use App\Model;
+
+//如果这里不指定表则指定表为posts
+class Post extends Model
+{
+}
+
+----------------------------
+表单提交，不要相信前端提交过来的参数。要做验证操作。三步骤1.验证，2.逻辑，3，渲染视图
+laravel提供validate验证机制，不满足会传递一个errors的对象
+错误提示在resource/lang/en/validation.php 里面，要使用中文新建zh目录在zh目录下新建validation.php，到https://gist.github.com/zeijier/ba5d96225726b062c2c30d05f65981ee 全部复制粘贴替换，再到App/config/app.php 找到locale 把en改成zh 即可。
+可以创建一个表单验证类
+php artisan make:request UserRequest
+
+
+富文本编辑器wangedit   https://github.com/wangfupeng1988/wangEditor/releases 下载
+laravel中 {{}} 传递的是内容没有做html转换 {!!  xxx  !!}
+
+laravel中容器
+绑定：bind		singleton
+解析：make
+
+validate 验证机制
+密码的验证  confirmed 验证的字段必须和 foo_confirmation 的字段值一致。例如，如果要验证的字段是 password，输入中必须存在匹配的 password_confirmation 字段。
+laravel默认对密码进行加密用  bcrypt() 把明文转化成密文，
+
+auth门脸类
+模型要继承Authenticatable 这个类，
+所以加上命名空间		use Illuminate\Foundation\Auth\User as Authenticatable;
+User模型就要继承Authenticatable			eg： class User extends Authenticatable{   }
+
+在 Laravel 中可以使用 授权策略 (Policy) 来对用户的操作权限进行验证，在用户未经授权进行操作时将返回 403 禁止访问的异常
+接收2个参数，第一个参数默认为登录用户实例，第二个参数则为要进行授权的用户实例。当两个 id 相同时，则代表两个用户是相同用户，用户通过授权，可以接着进行下一个操作。如果 id 不相同的话，将抛出 403 异常信息来拒绝访问。
+权限认证 policy   php artisan make:policy PostPolicy	到Policies/PostPolicy.php中创建方法，（比如；哪一个人可以对哪一个文章进行修改）
+//    修改权限  (哪一个人可以对哪一个文章进行修改)
+    public function update(User $user,Post $post){
+        return $user->id==$post->user_id;//返回的值是true和false。
+    }
+再到Providers/AuthServiceProvider.php 把策略注册到模型 'App\Post'=>'App\Policies\PostPolicy',
+接着去方法写对应逻辑
+
+每一个关联，在模板里具体使用的时间关联的函数，不要带() ,函数变成这个对象的属性。
+
+预加载		load();
+模型关联计数withCount('模型关联的函数名');    
+eg：$posts = Post::orderby('created_at','desc')->withCount('comment')->paginate(3);
+然后模板里面的写法是：eg：{{$post->comment_count}}  就能获取到数量了
+
+//        先查找一条数据表是否有一条$params 的数据，有就查找出来，没有就创建
+        Zan::firstOrCreate($params);
+
+elasticsearch
+https://github.com/medcl/elasticsearch-rtf
+如启动报错 缺少jvm 则去jre里面找再拿到jre对应目录里面即可，再报内存错则到elasticsearch的config目录下jvm.options修改-Xms2g 成-Xmx1g  把2个换成1
+
+laravel使用elasticsearch 要安装laravel/scout	安装scout的es驱动	修改scout.php
+scout是搜索驱动 composer require laravel/scout 然后配置config/app.php 
+首先按照scout 包再安装elasticsearch的包
+composer require tamayo/laravel-scout-elastic   	配置config/app.php
+
+
+-------------laravel增加命令行,自定义命令-----------第一步创建command，第二步编辑handle,第三步挂载
+自定义命令行  php artisan make:command ESInit
+在app/Console/Commands/ESInit.php	 添加启动命令，命令的描述
+挂载，，Kernel.php里面  就是把ESInit.php的路径放到$commands组里面  eg：\App\Console\Commands\ESInit::class
+ 
+编辑自定义的这个esinit  handle函数   创建template	创建index
+使用扩展包：composer require guzzlehttp/guzzle   使用这个类库 （用于发送HTTP请求）
+
+引入包 use Laravel\Scout\Searchable;//加上这个特性 该模型就符合scout
+//    使用Searchable   ---------搜索
+//    use Searchable;  <----这个语句放在模型里面，而不是放在控制器里面
+到模型里面定义2个方法 searchableAs 和 toSearchableArray
+//  然后使用php artisan scout:import "\App\Post"   导入数据
+
+
+创建一张fans的migration表，
+php artisan make:migration create_fans_table
+命名迁移文件时需要加上前缀，遵照如 add_column_to_table 这样的命名规范，并在生成迁移文件的命令中设置 --table 选项，用于指定对应的数据库表。eg:php artisan make:migration add_avatar_and_introduction_to_users_table --table=users
+
+
+laravel分页系统获取总数
+如果你想在view视图里显示总数 用以下代码就可以了 $all为带过来的数据
+控制器：
+$all=Main::paginate(10);
+return view ('main.index')->with('all',$all);
+总数：
+<div class="btn btn-default btn-sm">总数{!!$all->total()!!}</div>
+分页：
+<div align="left"> {!! $all->links() !!}</div>
+
+
+ {{--@include 里面传递信息就加上第2个参数，用数组的形式传--}}
+@include('user.badges.like',['target_user'=>$suser])
+
+
+视图合成器  第一个参数：字符串，某一个模板的地址。第2个参数是一个函数，view指这个模板的view 
+View::composer('dashboard',function($view){
+
+});
+这个意思就是：在加载这么模板的时候，就用后面这个函数进行处理。 
+
+laravel中属于，不属于的范围限制 专门的方法 scope
+使用：在模型上定义一个函数 （函数名以scope+大写字母的自定义单词），参数第一个必须是一个查询语句，返回值必须返回一个查询结果。
+//$query  是查询语句
+eg：public function scopeActive($query){
+	return $query->where('active',1);
+}
+//这个Builder 导入的是use Illuminate\Database\Eloquent\Builder;
+eg:public function scopeAuthorBy(Builder $query,$user_id){
+        return $query->where('user_id',$user_id);
+    }
+具体使用这个scope   eg:$users = App\User::popular()->active()(ps:自定义函数去掉scope)->get();
+
+控制器用withCount计数，在模板里面用xxx_count来计数	控制器里面传过来的大写要写成小写，驼峰变成_  
+eg:$topic = Topic::withCount('postTopics')->find($topic->id);
+模板里面就是：{{$topic->post_topics_count}}
+
+页面模板：用 adminlte 开源项目
+
+Auth相关  password一定要用bcrypt（）加密 才能正常认证！！！
+attempt 方法会接受一个数组来作为第一个参数，这个数组的值可用来寻找数据库里的用户数据，所以在上面的例子中，用户通过 email 字段被取出，如果用户被找到了，数据库里经过哈希的密码将会与数组中哈希的 password 值比对，如果两个值一样的话就会开启一个通过认证的 session 给用户。第二个参数为是否为用户开启『记住我』功能的布尔值
+
+fill()方法是一个给Eloquent 实例赋值属性的方法
+eg：public function update(Request $request)
+    {
+        // Validate the new password length...
+        $request->user()->fill([
+            'password' => Hash::make($request->newPassword)
+        ])->save();
+    }
+	
+验证码 用第三方扩展包 mews/captcha	（要开php_fileinfo，php_gd2，php_mbstring三个扩展） composer require mews/captcha 再运行php artisan vendor:publish --provider='Mews\Captcha\CaptchaServiceProvider' 生成配置文件 config/captcha.php    模板中用captcha_src() 方法是 mews/captcha 提供的辅助方法，用于生成验证码图片链接   <img src="{{captcha_src()}}" onclick="this.src='/captcha/default?'+Math.random()">
+
+表单请求验证（FormRequest）的工作机制，是利用 Laravel 提供的依赖注入功能，在控制器方法，如上面我们的 update() 方法声明中，传参 UserRequest。这将触发表单请求类的自动验证机制，验证发生在 UserRequest 中，并使用此文件中方法 rules() 定制的规则，只有当验证通过时，才会执行 控制器 update() 方法中的代码。否则抛出异常，并重定向至上一个页面，附带验证失败的信息。
+
+overtrue/laravel-lang   表单验证中文语言包  composer require "overtrue/laravel-lang:~3.0"  还需要将项目语言设置为中文。 config/app.php 'locale' => 'zh-CN', 将项目文件config/app.php中的下一行Illuminate\Translation\TranslationServiceProvider::class,替换为：Overtrue\LaravelLang\TranslationServiceProvider::class,
+ 
+Carbon 是 PHP 知名的 DateTime 操作扩展，Laravel 将其默认集成到了框架中。Carbon 对象提供的方法，默认情况是英文的，如果要使用中文时间提示，则需要对 Carbon 进行本地化设置。对 Carbon 进行本地化的设置很简单，只在 AppServiceProvider 中调用 Carbon 的 setLocale 方法即可，AppServiceProvider 是框架的核心，在 Laravel 启动时，会最先加载该文件。
+
+图片或者文件上传时，为表单添加此句声明是必须的。enctype="multipart/form-data"
+
+处理图片裁切  composer require intervention/image
+
+php artisan make:model Category -m   创建模型Category 并进行迁移。-m 选项意为顺便创建数据库迁移文件（Migration）
+
+用户的数据工厂  Laravel 框架自带了 UserFactory.php 作为示例文件  define 定义了一个指定数据模型（如此例子 User）的模型工厂。define 方法接收两个参数，第一个参数为指定的 Eloquent 模型类，第二个参数为一个闭包函数，该闭包函数接收一个 Faker PHP 函数库的实例，让我们可以在函数内部使用 Faker 方法来生成假数据并为模型的指定字段赋值。
+
+代码生成器 Scaffold Generator  代码生成器能让你通过执行一条 Artisan 命令，完成注册路由、新建模型、新建表单验证类、新建资源控制器以及所需视图文件等任务
+composer require summerblue/generator --dev
+
+php artisan route:list   查看已添加的路由
+
+Auth::login($user); 让一个已认证通过的用户实例进行自动登录
+
+Laravel 中间件提供了一种方便的机制来过滤进入应用的 HTTP 请求
+
+blade模板中@guest语句,没有登录就显示，登录就显示@else 的东西
+
+Laravel的config下一般存放配置信息，可以通过config('key')方法获取指定的数据。
+
+使用命令行新建模型，顺便创建数据库迁移：
+php artisan make:model Models/Link -m
+
+监听器/观察器
+Observer
+第一步新建监听器
+第二步注册监听器  到appserviceProvider 注册  (把路径写出来eg:\App\Models\Link::observe(\App\Observers\LinkObserver::class);)
+
+DingoApi
+Laravel 5.5 的适配版本为dingo/api:v2.0.0-alpha1
+composer require dingo/api:2.0.0-alpha1
+dingo 的文档中有说明，现在这个包还处在开发阶段，没有一个稳定的 release 版本，所以我们需要打开 composer.json
+require  添加  "dingo/api": "2.0.0-alpha1"  
+
+app()  返回服务容器实例
+config()  config 函数获取 配置 变量的值。可以使用「点」语法访问配置值，其中包括文件的名称和希望访问的选项
+
+redirect() 实例提供了一个 intended 方法，该方法可将页面重定向到上一次请求尝试访问的页面上，并接收一个默认跳转地址参数，当上一次请求记录为空时，跳转到默认地址上 eg：return redirect()->intended(route('users.show', [Auth::user()]));
+
+str_random(30)生成30位随机数
+
+laravel 自带的密码重置 邮箱视图 \vendor\laravel\framework\src\Illuminate\Auth\Notifications\ResetPassword.php
+
+后台视图管理 composer require "summerblue/administrator:~1.1"   报错1055 则修改 config/database.php这个配置 strict => false
+
+api 开发中用composer require gregwar/captcha 来完成图片验证码功能
+
+oauth三方登录
+在 windows 环境下，解决[GuzzleHttp\Exception\RequestException] cURL error 60: SSL certificate problem: unable to get local issuer certific ate
+访问这个网址 https://curl.haxx.se/ca/cacert.pem 下载文件
+然后修改 php.ini curl.cainfo = "D:\cacert.pem" cacert.pem文件 随便放在哪，没限制。
+
+ jwt-auth    Laravel 5.5 的适配版本为 1.0.0-rc.2。  composer require tymon/jwt-auth:1.0.0-rc.2
+ 
+ 
+ php artisan make:model Models/UserAddress -fm
+-fm 参数代表同时生成 factory 工厂文件和 migration 数据库迁移文件
