@@ -165,3 +165,6 @@ del key   删除
 crontab -e  设置定时任务
 crontab -l   查看定时任务
 crontab -r 删除当前用户下面的定时任务
+
+
+echo bin2hex(random_bytes(16));  生成32位随机数
